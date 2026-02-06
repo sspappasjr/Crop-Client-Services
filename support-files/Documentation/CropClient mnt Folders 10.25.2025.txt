@@ -1,0 +1,25 @@
+
+
+/mnt/user-data/outputs/CropClient-Archive/
+
+The Important Ones:
+
+CropClient_Library_Index.md
+CropClient_Vision_and_Architecture_Guide.md
+Napkin_02_Solution_Dreamer_15_Year_Arc.md
+The_Napkin_Conversation_LLM_Prompt_Designer.md
+CropClient-Website.html
+CropClient-Landing-Page.html
+
+Everything's already in outputs where you can download them to C:\AICode\crop-client-services
+
+And I'll pull up the list from the Library Index or just list what's in outputs.
+Right now we have:
+
+Napkin_01 - The Napkin Conversation (prompt designer)
+Napkin_02 - Solution Dreamer 15-Year Arc
+CropClient Vision & Architecture Guide (with dev environment now)
+Development Environment Setup (detailed 3-location guide)
+Library Index (catalog of everything)
+CropClient Website (the public site)
+CropClient Landing Page (the demo)

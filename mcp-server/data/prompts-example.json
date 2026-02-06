@@ -1,0 +1,60 @@
+{
+  "prompts": [
+    {
+      "id": "read-irrigation",
+      "name": "Read Irrigation Table",
+      "prompt": "read irrigation table",
+      "category": "data-read",
+      "description": "Load all irrigation records from the database"
+    },
+    {
+      "id": "irrigation-stats",
+      "name": "Show Irrigation Statistics",
+      "prompt": "show irrigation statistics",
+      "category": "analytics",
+      "description": "Calculate and display irrigation statistics"
+    },
+    {
+      "id": "create-next-r1-1a",
+      "name": "Create Next for Ranch 1 Planting 1A",
+      "prompt": "create next irrigation for ranch 1 planting 1A",
+      "category": "create",
+      "description": "Generate next irrigation recommendation for Ranch 1, Planting 1A"
+    },
+    {
+      "id": "create-next-r1-1b",
+      "name": "Create Next for Ranch 1 Planting 1B",
+      "prompt": "create next irrigation for ranch 1 planting 1B",
+      "category": "create",
+      "description": "Generate next irrigation recommendation for Ranch 1, Planting 1B"
+    },
+    {
+      "id": "read-meter-r1-1a",
+      "name": "Read Meter Ranch 1 Planting 1A",
+      "prompt": "read meter for ranch 1 planting 1A",
+      "category": "meter",
+      "description": "Read water meter for Ranch 1, Planting 1A"
+    },
+    {
+      "id": "weekly-filter",
+      "name": "Filter Last Week",
+      "prompt": "filter irrigation records for last 7 days",
+      "category": "filter",
+      "description": "Get irrigation records from the past week"
+    },
+    {
+      "id": "compliance-check",
+      "name": "Check Compliance",
+      "prompt": "check irrigation against water regulations",
+      "category": "validation",
+      "description": "Verify irrigation practices meet regulatory requirements"
+    },
+    {
+      "id": "backup-data",
+      "name": "Backup All Data",
+      "prompt": "backup irrigation and crop data to archive",
+      "category": "maintenance",
+      "description": "Create backup copies of all data files"
+    }
+  ]
+}

@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CropClient App Builder - Steve's Nirvana</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .builder-panel {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+        }
+
+        .preview-panel {
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1.5rem;
+            min-height: 600px;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #2d5a27;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .prompt-list {
+            background: white;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .prompt-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .prompt-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .prompt-text {
+            flex: 1;
+            color: #333;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            margin-left: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .preview-content {
+            min-height: 500px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            padding: 1rem;
+        }
+
+        .preview-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+            font-size: 1.2rem;
+        }
+
+        .generated-app {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+        }
+
+        .code-preview {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 1rem;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 400px;
+            overflow: auto;
+            white-space: pre-wrap;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+
+        .column-builder {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 CropClient App Builder</h1>
+            <p>Steve's 47-Year Vision: From 1978 Form Builder to AI-Powered App Generation</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Builder Panel -->
+            <div class="builder-panel">
+                <div class="section">
+                    <div class="section-title">📝 App Configuration</div>
+                    
+                    <div class="form-group">
+                        <label>App Name:</label>
+                        <input type="text" id="appName" placeholder="e.g., Irrigation Test App" value="Irrigation Test App">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <textarea id="appDescription" rows="2" placeholder="What does this app do?">Test app for irrigation prompts and data grid</textarea>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">💬 Prompts</div>
+                    
+                    <div class="form-group">
+                        <label>Add Prompt:</label>
+                        <input type="text" id="promptInput" placeholder="e.g., create next irrigation for ranch 1 planting 1A">
+                    </div>
+
+                    <button class="btn btn-primary btn-small" onclick="addPrompt()">➕ Add Prompt</button>
+
+                    <div class="prompt-list" id="promptList">
+                        <div class="prompt-item">
+                            <span class="prompt-text">read irrigation table</span>
+                            <button class="btn btn-danger btn-small" onclick="removePrompt(0)">✕</button>
+                        </div>
+                        <div class="prompt-item">
+                            <span class="prompt-text">create next irrigation for ranch 1 planting 1A</span>
+                            <button class="btn btn-danger btn-small" onclick="removePrompt(1)">✕</button>
+                        </div>
+                        <div class="prompt-item">
+                            <span class="prompt-text">read meter for ranch 1 planting 1A</span>
+                            <button class="btn btn-danger btn-small" onclick="removePrompt(2)">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">📊 Data Grid</div>
+                    
+                    <div class="form-group">
+                        <label>Data Source (Table):</label>
+                        <input type="text" id="dataSource" placeholder="e.g., irrigation" value="irrigation">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Grid Columns (comma-separated):</label>
+                        <input type="text" id="gridColumns" placeholder="e.g., eventDate, ranch, planting, waterApplied" value="eventDate, ranch, planting, waterApplied, managerAmount">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Theme:</label>
+                        <select id="theme">
+                            <option value="cropclient">CropClient Green</option>
+                            <option value="blue">Professional Blue</option>
+                            <option value="dark">Dark Mode</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="buildApp()">🔨 Build App</button>
+                    <button class="btn btn-secondary" onclick="previewApp()">👁️ Preview</button>
+                    <button class="btn btn-secondary" onclick="showCode()">💻 View Code</button>
+                    <button class="btn btn-secondary" onclick="saveApp()">💾 Save</button>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="preview-panel">
+                <div class="section-title">🎨 Preview / Output</div>
+                <div class="preview-content" id="previewContent">
+                    <div class="preview-empty">
+                        Click "Build App" to generate your test app
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let appState = {
+            name: 'Irrigation Test App',
+            description: 'Test app for irrigation prompts',
+            prompts: [
+                'read irrigation table',
+                'create next irrigation for ranch 1 planting 1A',
+                'read meter for ranch 1 planting 1A'
+            ],
+            dataSource: 'irrigation',
+            columns: ['eventDate', 'ranch', 'planting', 'waterApplied', 'managerAmount'],
+            theme: 'cropclient',
+            generatedCode: ''
+        };
+
+        // Initialize
+        function init() {
+            updatePromptList();
+        }
+
+        // Prompt management
+        function addPrompt() {
+            const input = document.getElementById('promptInput');
+            const prompt = input.value.trim();
+            
+            if (prompt) {
+                appState.prompts.push(prompt);
+                input.value = '';
+                updatePromptList();
+            }
+        }
+
+        function removePrompt(index) {
+            appState.prompts.splice(index, 1);
+            updatePromptList();
+        }
+
+        function updatePromptList() {
+            const list = document.getElementById('promptList');
+            list.innerHTML = appState.prompts.map((prompt, index) => `
+                <div class="prompt-item">
+                    <span class="prompt-text">${prompt}</span>
+                    <button class="btn btn-danger btn-small" onclick="removePrompt(${index})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        // App generation
+        function buildApp() {
+            // Collect current state
+            appState.name = document.getElementById('appName').value;
+            appState.description = document.getElementById('appDescription').value;
+            appState.dataSource = document.getElementById('dataSource').value;
+            appState.theme = document.getElementById('theme').value;
+            
+            const columnsInput = document.getElementById('gridColumns').value;
+            appState.columns = columnsInput.split(',').map(c => c.trim());
+
+            // Generate the app code
+            appState.generatedCode = generateAppCode(appState);
+
+            // Show success
+            showSuccess('App generated successfully! Click Preview to see it, or Save to download.');
+        }
+
+        function previewApp() {
+            if (!appState.generatedCode) {
+                buildApp();
+            }
+
+            // Create iframe with generated app
+            const preview = document.getElementById('previewContent');
+            preview.innerHTML = `
+                <iframe 
+                    style="width: 100%; height: 600px; border: none; border-radius: 5px;" 
+                    srcdoc="${escapeHtml(appState.generatedCode)}">
+                </iframe>
+            `;
+        }
+
+        function showCode() {
+            if (!appState.generatedCode) {
+                buildApp();
+            }
+
+            const preview = document.getElementById('previewContent');
+            preview.innerHTML = `
+                <div class="code-preview">${escapeHtml(appState.generatedCode)}</div>
+                <button class="btn btn-primary" style="margin-top: 1rem;" onclick="copyCode()">📋 Copy Code</button>
+            `;
+        }
+
+        function saveApp() {
+            if (!appState.generatedCode) {
+                buildApp();
+            }
+
+            // Create download
+            const blob = new Blob([appState.generatedCode], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${appState.name.replace(/\s+/g, '-').toLowerCase()}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showSuccess(`App saved as: ${a.download}`);
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(appState.generatedCode);
+            showSuccess('Code copied to clipboard!');
+        }
+
+        // Code generation
+        function generateAppCode(config) {
+            const themeColors = {
+                cropclient: { primary: '#2d5a27', secondary: '#4CAF50', accent: '#45a049' },
+                blue: { primary: '#1e3a8a', secondary: '#3b82f6', accent: '#2563eb' },
+                dark: { primary: '#1f2937', secondary: '#6b7280', accent: '#9ca3af' }
+            };
+
+            const colors = themeColors[config.theme];
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${config.name}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: ${colors.primary};
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .prompts-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: ${colors.primary};
+            margin-bottom: 1rem;
+            font-weight: bold;
+            border-bottom: 2px solid ${colors.secondary};
+            padding-bottom: 0.5rem;
+        }
+
+        .prompt-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: ${colors.secondary};
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: ${colors.accent};
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .output-log {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        .log-entry {
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .data-grid {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: ${colors.primary};
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>${config.name}</h1>
+            <p>${config.description}</p>
+        </div>
+
+        <div class="content">
+            <!-- Prompts Section -->
+            <div class="prompts-section">
+                <div class="section-title">💬 Available Prompts</div>
+                <div class="prompt-buttons">
+${config.prompts.map((prompt, i) => `                    <button class="btn" onclick="executePrompt('${escapeQuotes(prompt)}')">${prompt}</button>`).join('\n')}
+                </div>
+            </div>
+
+            <!-- Output Log -->
+            <div class="prompts-section">
+                <div class="section-title">📋 Output Log</div>
+                <div class="output-log" id="outputLog">
+                    <div class="log-entry">Ready. Click a prompt to execute...</div>
+                </div>
+            </div>
+
+            <!-- Data Grid -->
+            <div class="prompts-section">
+                <div class="section-title">📊 Data Grid - ${config.dataSource}</div>
+                <div class="data-grid">
+                    <table id="dataTable">
+                        <thead>
+                            <tr>
+${config.columns.map(col => `                                <th>${col}</th>`).join('\n')}
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="${config.columns.length}" class="empty-state">
+                                    No data loaded. Execute a prompt to load data.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gridData = [];
+
+        function log(message) {
+            const logEl = document.getElementById('outputLog');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        async function executePrompt(prompt) {
+            log('Executing: ' + prompt);
+
+            try {
+                // TODO: Connect to actual MCP server
+                // For now, simulate with sample data
+                
+                if (prompt.includes('read') || prompt.includes('table')) {
+                    // Simulate reading data
+                    gridData = [
+                        { eventDate: '2025-09-18', ranch: '1', planting: '1A', waterApplied: 0.8, managerAmount: null },
+                        { eventDate: '2025-09-23', ranch: '1', planting: '1A', waterApplied: 0, managerAmount: null },
+                        { eventDate: '2025-09-25', ranch: '1', planting: '1A', waterApplied: 0, managerAmount: null },
+                        { eventDate: '2025-09-18', ranch: '2', planting: '2A', waterApplied: 0.75, managerAmount: null }
+                    ];
+                    updateGrid();
+                    log('✅ Data loaded: ' + gridData.length + ' records');
+                } else if (prompt.includes('create next')) {
+                    // Simulate creating new record
+                    const newRecord = {
+                        eventDate: new Date().toISOString().split('T')[0],
+                        ranch: '1',
+                        planting: '1A',
+                        waterApplied: 0,
+                        managerAmount: null
+                    };
+                    gridData.push(newRecord);
+                    updateGrid();
+                    log('✅ Created new irrigation record');
+                } else if (prompt.includes('meter')) {
+                    log('✅ Meter reading: 1234.56 gallons');
+                } else {
+                    log('⚠️ Prompt executed (simulated)');
+                }
+            } catch (error) {
+                log('❌ Error: ' + error.message);
+            }
+        }
+
+        function updateGrid() {
+            const tbody = document.getElementById('tableBody');
+            
+            if (gridData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="${config.columns.length}" class="empty-state">No data available</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = gridData.map(row => {
+                return '<tr>' + 
+${config.columns.map(col => `'<td>' + (row['${col}'] !== null ? row['${col}'] : '-') + '</td>' +`).join(' \n                    ')} 
+                '</tr>';
+            }).join('');
+        }
+    <\/script>
+</body>
+</html>`;
+        }
+
+        // Utilities
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function escapeQuotes(text) {
+            return text.replace(/'/g, "\\'");
+        }
+
+        function showSuccess(message) {
+            const preview = document.getElementById('previewContent');
+            preview.innerHTML = `
+                <div class="success-message">
+                    ✅ ${message}
+                </div>
+            ` + preview.innerHTML;
+
+            setTimeout(() => {
+                const msg = preview.querySelector('.success-message');
+                if (msg) msg.remove();
+            }, 5000);
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>

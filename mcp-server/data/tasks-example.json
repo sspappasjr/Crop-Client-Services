@@ -1,0 +1,56 @@
+{
+  "tasks": [
+    {
+      "id": "morning-irrigation-check",
+      "name": "Morning Irrigation Check",
+      "description": "Daily morning routine to check irrigation status",
+      "enabled": true,
+      "schedule": "daily 7am",
+      "stopOnError": false,
+      "prompts": [
+        "read irrigation table",
+        "show irrigation statistics"
+      ]
+    },
+    {
+      "id": "create-next-ranch-1",
+      "name": "Create Next Irrigation for Ranch 1",
+      "description": "Generate next irrigation records for all Ranch 1 plantings",
+      "enabled": true,
+      "schedule": null,
+      "stopOnError": true,
+      "prompts": [
+        "create next irrigation for ranch 1 planting 1A",
+        "create next irrigation for ranch 1 planting 1B"
+      ]
+    },
+    {
+      "id": "weekly-report",
+      "name": "Weekly Irrigation Report",
+      "description": "Generate comprehensive weekly report every Monday",
+      "enabled": true,
+      "schedule": "monday 6am",
+      "stopOnError": false,
+      "prompts": [
+        "read irrigation table",
+        "filter last 7 days",
+        "calculate weekly totals",
+        "generate report"
+      ]
+    },
+    {
+      "id": "meter-readings",
+      "name": "Morning Meter Readings",
+      "description": "Read meters for all ranches and plantings",
+      "enabled": false,
+      "schedule": "daily 6am",
+      "stopOnError": false,
+      "prompts": [
+        "read meter for ranch 1 planting 1A",
+        "read meter for ranch 1 planting 1B",
+        "read meter for ranch 2 planting 2A",
+        "read meter for ranch 2 planting 2B"
+      ]
+    }
+  ]
+}
