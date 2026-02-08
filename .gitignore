@@ -5,3 +5,8 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
+
+# Obsidian - local workspace files (not shared)
+obsidian-wip/.obsidian/workspace.json
+obsidian-wip/.obsidian/workspace-mobile.json
+obsidian-wip/.obsidian/cache/

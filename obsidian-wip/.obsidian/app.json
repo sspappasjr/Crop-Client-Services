@@ -1,0 +1,11 @@
+{
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "01-WIP/Active",
+  "attachmentFolderPath": "02-Resources/Assets",
+  "showUnsupportedFiles": false,
+  "defaultViewMode": "source",
+  "strictLineBreaks": false,
+  "autoConvertHtml": true,
+  "readableLineLength": true
+}
