@@ -1,0 +1,58 @@
+{
+  "projectInfo": {
+    "name": "CropClient Services",
+    "baseLocation": "C:/AICode/hello-world-system/",
+    "pagesFolder": "Pages/",
+    "lastUpdated": "2025-10-15"
+  },
+  "applications": [
+    {
+      "id": 1,
+      "name": "Crop Client Landing Page",
+      "fileName": "CropClient-Landing-Page.html",
+      "url": "file:///C:/AICode/hello-world-system/Pages/CropClient-Landing-Page.html",
+      "status": "working",
+      "description": "Main landing page with links to all applications"
+    },
+    {
+      "id": 2,
+      "name": "Crop Client Irrigation Dashboard",
+      "fileName": "CropClient-Irrigation-Dashboard.html",
+      "url": "file:///C:/AICode/hello-world-system/Pages/CropClient-Irrigation-Dashboard.html",
+      "status": "working",
+      "description": "Core irrigation management and Crop Manage updates"
+    },
+    {
+      "id": 3,
+      "name": "MCP Irrigation Management",
+      "fileName": "MCP-Irrigation-Management.html",
+      "url": "file:///C:/AICode/hello-world-system/Pages/MCP-Irrigation-Management.html",
+      "status": "working",
+      "description": "AI-powered irrigation recommendations via MCP"
+    },
+    {
+      "id": 4,
+      "name": "Role-Based Dashboard",
+      "fileName": "CropClient-Role-Dashboard.html",
+      "url": "file:///C:/AICode/hello-world-system/Pages/CropClient-Role-Dashboard.html",
+      "status": "working",
+      "description": "Role-based dashboard for user training"
+    },
+    {
+      "id": 5,
+      "name": "Role Manager",
+      "fileName": "CropClient-Role-Manager.html",
+      "url": "file:///C:/AICode/hello-world-system/Pages/CropClient-Role-Manager.html",
+      "status": "working",
+      "description": "User and role management interface"
+    },
+    {
+      "id": 6,
+      "name": "Prompt Manager",
+      "fileName": "CropClient-Prompt-Manager.html",
+      "url": "file:///C:/AICode/hello-world-system/Pages/CropClient-Prompt-Manager.html",
+      "status": "working",
+      "description": "Create and manage AI prompt templates"
+    }
+  ]
+}

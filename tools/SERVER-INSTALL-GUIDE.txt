@@ -1,0 +1,84 @@
+CROPCLIENT.IO — MCP API SERVER INSTALL GUIDE
+=============================================
+
+DOMAIN PURPOSE:
+  crop-client-services.com = Website (static pages, dashboard)
+  crop-client-services.io  = MCP API Server (middleware, port 3101)
+
+==============================================
+STEP 1: CLONE THE REPO
+==============================================
+Open CMD on the server.
+
+  git clone https://github.com/YOUR_ACCOUNT/crop-client-services.git
+  cd crop-client-services
+
+==============================================
+STEP 2: INSTALL NODE DEPENDENCIES
+==============================================
+  cd api-server
+  npm install
+
+==============================================
+STEP 3: START THE API SERVER
+==============================================
+  node APIServer1.2.js
+
+You should see:
+  API MCP Server started - 7 tools ready
+  ✅ API MCP Server running on http://localhost:3101
+  📋 Tools available: 15
+
+==============================================
+STEP 4: VERIFY IT'S RUNNING
+==============================================
+Open browser or curl:
+
+  A) Ping:        http://localhost:3101/ping
+     Expect:      { "status": "alive", "tools": 15 }
+
+  B) List Tools:  http://localhost:3101/tools
+     Expect:      JSON array of 15 tool names
+
+  C) Test Token:  POST http://localhost:3101/tools/get_token
+     Body:        { "username": "YOUR_USER", "password": "YOUR_PASS" }
+     Expect:      { "success": true, "token": "..." }
+
+==============================================
+STEP 5: POINT DOMAIN TO SERVER
+==============================================
+In your domain registrar (GoDaddy):
+
+  1. DNS for crop-client-services.io → your server IP
+  2. A Record: @  → SERVER_IP
+  3. A Record: www → SERVER_IP
+
+==============================================
+STEP 6: REVERSE PROXY (IIS or NGINX)
+==============================================
+Route incoming traffic on crop-client-services.io to localhost:3101.
+
+IIS (Windows/GoDaddy):
+  1. Install URL Rewrite + ARR modules
+  2. New site → crop-client-services.io
+  3. Reverse proxy rule: incoming → http://localhost:3101
+
+NGINX (if Linux):
+  server {
+      server_name crop-client-services.io;
+      location / {
+          proxy_pass http://localhost:3101;
+      }
+  }
+
+==============================================
+STEP 7: FINAL TEST (LIVE DOMAIN)
+==============================================
+  A) https://crop-client-services.io/ping
+  B) https://crop-client-services.io/tools
+
+Both return JSON = you're live.
+
+==============================================
+DONE. MCP Server is running on .io
+==============================================

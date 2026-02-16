@@ -1,0 +1,22 @@
+{
+  "manifest_version": "0.2",
+  "name": "cropclient-api",
+  "version": "1.0.0",
+  "description": "CropClient API MCP Server - CropManage Integration (Port 3101)",
+  "author": {
+    "name": "Steve Pappas",
+    "email": "stevep@sspnet.com"
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "APIserver.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/APIserver.js"
+      ],
+      "env": {}
+    }
+  },
+  "license": "ISC"
+}

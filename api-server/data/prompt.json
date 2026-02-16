@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "name": "prompt Table",
+    "lastUpdated": "2025-10-21",
+    "totalRecords": 1
+  },
+  "prompt": [
+    {
+      "id": 1,
+      "category": "prompt",
+      "name": "",
+      "type": "",
+      "status": "",
+      "description": "",
+      "prompt": "",
+      "targetFile": ""
+    }
+  ]
+}

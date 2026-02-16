@@ -1,0 +1,41 @@
+{
+  "metadata": {
+    "dataSource": "CropClient",
+    "lastUpdated": "2025-10-14",
+    "totalRecords": 4
+  },
+  "records": [
+    {
+      "eventDate": "2025-09-18",
+      "ranch": "1",
+      "planting": "1A",
+      "waterApplied": 0.8,
+      "managerAmount": null,
+      "notes": "Normal cycle"
+    },
+    {
+      "eventDate": "2025-09-23",
+      "ranch": "1",
+      "planting": "1A",
+      "waterApplied": 0,
+      "managerAmount": null,
+      "notes": "Rain skip"
+    },
+    {
+      "eventDate": "2025-09-18",
+      "ranch": "2",
+      "planting": "2A",
+      "waterApplied": 0.75,
+      "managerAmount": null,
+      "notes": "Normal cycle"
+    },
+    {
+      "eventDate": "2025-09-23",
+      "ranch": "2",
+      "planting": "2A",
+      "waterApplied": 0,
+      "managerAmount": null,
+      "notes": "Pending"
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "prompts": [
+    {
+      "id": 1,
+      "prompt": "What's my water recommendation for Ranch 1, planting 1A",
+      "type": "Filter",
+      "status": "saved"
+    },
+    {
+      "id": 2,
+      "prompt": "What's my water recommendation for Ranch 1, planting 1B",
+      "type": "Filter",
+      "status": "saved"
+    },
+    {
+      "id": 3,
+      "prompt": "Clear",
+      "type": "Filter",
+      "status": "saved"
+    },
+    {
+      "id": 4,
+      "prompt": "What's my water recommendation for {Ranch}, {planting}",
+      "type": "Filter",
+      "status": "saved"
+    },
+    {
+      "id": 6,
+      "prompt": "Calculate water from {duration} hours at {flow_rate}",
+      "type": "Calculation",
+      "status": "saved"
+    },
+    {
+      "id": 9,
+      "prompt": "What's my water recommendation for Ranch 1, planting 1A, Date 09/23/2025",
+      "type": "Data Entry",
+      "status": "saved"
+    },
+    {
+      "id": 10,
+      "prompt": "What's my water recommendation for Ranch 2, Planting 2A, Date 09/18/2025",
+      "type": "Data Entry",
+      "status": "saved"
+    },
+    {
+      "id": 11,
+      "prompt": "What's my Recommendation for {Ranch}, {Planting}",
+      "type": "Data Entry",
+      "status": "saved"
+    },
+    {
+      "id": 12,
+      "prompt": "What's my Recommendation for Ranch 1, Planting 1B",
+      "type": "Data Entry",
+      "status": "saved"
+    },
+    {
+      "id": 13,
+      "prompt": "What's my water recommendation for Ranch {Ranch}, Planting {Planting}, Date {Date}",
+      "type": "Data Entry",
+      "status": "saved"
+    },
+    {
+      "id": 17,
+      "prompt": "What's my Recommendation for Ranch {Ranch}, Planting {Planting}",
+      "type": "Data Entry",
+      "status": "saved"
+    },
+    {
+      "id": 19,
+      "prompt": "What's my Recommendation for Ranch 1, Planting 1A",
+      "type": "Data Entry",
+      "status": "saved"
+    },
+    {
+      "id": 20,
+      "prompt": "What's my Recommendation for Ranch 2, Planting 2A",
+      "type": "Data Entry",
+      "status": "saved"
+    },
+    {
+      "id": 21,
+      "prompt": "Show My water meter for ranch 1",
+      "type": "Filter",
+      "status": "saved"
+    },
+    {
+      "id": 22,
+      "prompt": "Show My water meter for Ranch {Ranch} Planting {Planting} Date {Date}",
+      "type": "Filter",
+      "status": "saved"
+    },
+    {
+      "id": 23,
+      "prompt": "Show My water meter for Ranch 1 Planting 1B Date 9/23/2025",
+      "type": "Data Entry",
+      "status": "saved"
+    },
+    {
+      "id": 24,
+      "prompt": "Show My water meter for Ranch 1 Planting 1A Date 9/23/2025",
+      "type": "Data Entry",
+      "status": "saved"
+    },
+    {
+      "id": 25,
+      "prompt": "clear",
+      "type": "Data Entry",
+      "status": "saved"
+    },
+    {
+      "id": 26,
+      "prompt": "Show My water meter for Ranch 2 Planting 2B Date 09/18/2025",
+      "type": "Data Entry",
+      "status": "saved"
+    },
+    {
+      "id": 27,
+      "prompt": "What's my Recommendation for Ranch 2, Planting 2b",
+      "type": "Data Entry",
+      "status": "saved"
+    },
+    {
+      "id": 30,
+      "prompt": "Show My water meter for Ranch 1 Planting 1B Date 9/21/2025",
+      "type": "Filter",
+      "status": "saved"
+    },
+    {
+      "id": 36,
+      "prompt": "Access the browser's localStorage, get the value stored under the key 'cropclient_prompts', and write that JSON data to the file C:\\AICode\\hello-world-system\\mcp-server\\data\\prompts.json",
+      "type": "Filter",
+      "status": "saved"
+    },
+    {
+      "id": 37,
+      "prompt": "show localStorage.getItem('cropclient_prompts')",
+      "type": "Filter",
+      "status": "saved"
+    },
+    {
+      "id": 38,
+      "prompt": "localStorage.getItem('cropclient_prompts')",
+      "type": "Filter",
+      "status": "saved"
+    }
+  ],
+  "nextId": 39
+}

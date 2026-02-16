@@ -1,0 +1,43 @@
+{
+  "name": "cropclient-api",
+  "version": "1.0.0",
+  "description": "CropClient API MCP Server - CropManage API integration for authentication, data sync, and irrigation management",
+  "author": "Steve",
+  "main": "APIServer.js",
+  "runtime": "node",
+  "transport": "stdio",
+  "tools": [
+    {
+      "name": "get_token",
+      "description": "Authenticate with CropManage API and obtain access token"
+    },
+    {
+      "name": "get_ranches",
+      "description": "Fetch all ranches from CropManage API"
+    },
+    {
+      "name": "get_plantings",
+      "description": "Fetch all plantings for a specific ranch"
+    },
+    {
+      "name": "get_irrigation_details",
+      "description": "Fetch irrigation event details for a specific planting"
+    },
+    {
+      "name": "load_into_displayRecords",
+      "description": "Fetch and transform irrigation events to dashboard format"
+    },
+    {
+      "name": "post_new_irrigation",
+      "description": "POST a new irrigation event to CropManage"
+    },
+    {
+      "name": "update_irrigation",
+      "description": "Update an existing irrigation event in CropManage"
+    },
+    {
+      "name": "batch_post_queue",
+      "description": "Bulk process pending irrigation records (auto POST or UPDATE)"
+    }
+  ]
+}

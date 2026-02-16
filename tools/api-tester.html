@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CropClient API Harness</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232734;
+    --border: #2e3345;
+    --text: #e1e4ed;
+    --text-dim: #8b90a0;
+    --accent: #4ade80;
+    --accent-dim: #22703e;
+    --error: #f87171;
+    --error-dim: #7f1d1d;
+    --warn: #fbbf24;
+    --info: #60a5fa;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-sans: 'DM Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ---- HEADER ---- */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .header-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), #22c55e);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .header h1 {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .header h1 span { color: var(--accent); }
+
+  .status-badge {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-badge.online { background: var(--accent-dim); color: var(--accent); }
+  .status-badge.offline { background: var(--error-dim); color: var(--error); }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ---- LAYOUT ---- */
+  .main {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: calc(100vh - 69px);
+  }
+
+  /* ---- SIDEBAR ---- */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .tool-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .tool-item {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+    color: var(--text-dim);
+  }
+
+  .tool-item:hover {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .tool-item.selected {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .tool-item .tool-dot {
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+
+  .tool-item[data-category="api"] .tool-dot { background: var(--info); }
+  .tool-item[data-category="json"] .tool-dot { background: var(--warn); }
+
+  /* ---- CONTENT AREA ---- */
+  .content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ---- PARAMS PANEL ---- */
+  .params-panel {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .params-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .tool-title {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .tool-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+
+  .params-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  .param-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .param-group label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .param-group label .required {
+    color: var(--error);
+    margin-left: 2px;
+  }
+
+  .param-group input, .param-group textarea {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 8px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .param-group input:focus, .param-group textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .param-group textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-run {
+    background: var(--accent);
+    color: #0f1117;
+  }
+
+  .btn-run:hover { background: #6ee7a0; }
+  .btn-run:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-clear {
+    background: var(--surface2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  .btn-clear:hover { color: var(--text); border-color: var(--text-dim); }
+
+  .btn-json {
+    background: var(--surface2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+
+  .btn-json.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* ---- RESULTS AREA ---- */
+  .results-area {
+    flex: 1;
+    overflow: auto;
+    padding: 20px 24px;
+  }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .results-meta {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    display: flex;
+    gap: 16px;
+  }
+
+  .results-meta .tag {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+
+  .tag-success { background: var(--accent-dim); color: var(--accent); }
+  .tag-error { background: var(--error-dim); color: var(--error); }
+
+  /* ---- DATA GRID ---- */
+  .grid-wrap {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: auto;
+    max-height: calc(100vh - 340px);
+  }
+
+  .grid-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .grid-wrap thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .grid-wrap th {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    background: var(--surface2);
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .grid-wrap th:hover { color: var(--text); }
+
+  .grid-wrap th .sort-arrow {
+    margin-left: 4px;
+    font-size: 10px;
+    opacity: 0.4;
+  }
+
+  .grid-wrap th.sorted .sort-arrow { opacity: 1; color: var(--accent); }
+
+  .grid-wrap td {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    white-space: nowrap;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .grid-wrap tr:hover td {
+    background: var(--surface2);
+  }
+
+  .grid-wrap tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* ---- JSON VIEW ---- */
+  .json-view {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.6;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow: auto;
+    max-height: calc(100vh - 340px);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .json-key { color: var(--info); }
+  .json-string { color: var(--accent); }
+  .json-number { color: var(--warn); }
+  .json-bool { color: #c084fc; }
+  .json-null { color: var(--text-dim); }
+
+  /* ---- WELCOME STATE ---- */
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-dim);
+    text-align: center;
+    gap: 12px;
+  }
+
+  .welcome-icon {
+    font-size: 48px;
+    opacity: 0.3;
+  }
+
+  .welcome h2 {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .welcome p {
+    font-size: 14px;
+    max-width: 300px;
+    line-height: 1.5;
+  }
+
+  /* ---- LOADING SPINNER ---- */
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: none;
+  }
+
+  .loading .spinner { display: block; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---- RECORD COUNT ---- */
+  .record-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    padding: 8px 0;
+  }
+
+  .record-count strong { color: var(--accent); }
+
+  /* ---- SCROLLBAR ---- */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-icon">🌱</div>
+    <h1>CropClient <span>Harness</span></h1>
+  </div>
+  <div id="serverStatus" class="status-badge offline">
+    <span class="status-dot"></span>
+    <span id="statusText">Checking...</span>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div>
+      <div class="section-label">API Tools</div>
+      <div id="apiToolList" class="tool-list"></div>
+    </div>
+    <div>
+      <div class="section-label">JSON Tools</div>
+      <div id="jsonToolList" class="tool-list"></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <!-- PARAMS -->
+    <div class="params-panel" id="paramsPanel" style="display:none;">
+      <div class="params-header">
+        <div>
+          <div class="tool-title" id="toolTitle"></div>
+          <div class="tool-desc" id="toolDesc"></div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-clear" onclick="clearResults()">Clear</button>
+          <button class="btn btn-run" id="runBtn" onclick="runTool()">
+            <span class="spinner" id="runSpinner"></span>
+            ▶ Run
+          </button>
+        </div>
+      </div>
+      <div class="params-form" id="paramsForm"></div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results-area" id="resultsArea">
+      <div class="welcome" id="welcomeMsg">
+        <div class="welcome-icon">⚡</div>
+        <h2>Select a tool to begin</h2>
+        <p>Pick a tool from the sidebar to see its parameters and fire off a request.</p>
+      </div>
+      <div id="resultsContent" style="display:none;">
+        <div class="results-header">
+          <div class="results-meta" id="resultsMeta"></div>
+          <button class="btn btn-json" id="toggleView" onclick="toggleJsonView()">{ } JSON</button>
+        </div>
+        <div id="gridContainer"></div>
+        <div id="jsonContainer" class="json-view" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'http://localhost:3101';
+
+// Tool definitions (loaded from server, enriched with known schemas)
+const TOOL_SCHEMAS = {
+  get_token: {
+    category: 'api',
+    params: [
+      { name: 'username', type: 'string', required: true },
+      { name: 'password', type: 'string', required: true, inputType: 'password' }
+    ]
+  },
+  get_ranches: { category: 'api', params: [] },
+  get_plantings: {
+    category: 'api',
+    params: [
+      { name: 'ranchGuid', type: 'string', required: true, label: 'Ranch GUID' }
+    ]
+  },
+  get_irrigation_details: {
+    category: 'api',
+    params: [
+      { name: 'plantingId', type: 'string', required: true, label: 'Planting ID' }
+    ]
+  },
+  load_into_displayRecords: {
+    category: 'api',
+    params: [
+      { name: 'plantingId', type: 'string', required: false, label: 'Planting ID' }
+    ]
+  },
+  post_new_irrigation: {
+    category: 'api',
+    params: [
+      { name: 'plantingId', type: 'string', required: true, label: 'Planting ID' },
+      { name: 'scheduledDate', type: 'string', required: true, label: 'Date (MM/DD/YY)' },
+      { name: 'recommendedInches', type: 'number', required: false, label: 'Rec. Inches' },
+      { name: 'appliedHours', type: 'number', required: false, label: 'Applied Hours' },
+      { name: 'irrigationMethod', type: 'string', required: false, label: 'Method (Drip/Sprinkler)' }
+    ]
+  },
+  update_irrigation: {
+    category: 'api',
+    params: [
+      { name: 'eventId', type: 'string', required: true, label: 'Event ID' },
+      { name: 'appliedHours', type: 'number', required: false, label: 'Applied Hours' },
+      { name: 'mgrHours', type: 'number', required: false, label: 'Mgr Hours' }
+    ]
+  },
+  batch_post_queue: {
+    category: 'api',
+    params: [
+      { name: 'records', type: 'json', required: true, label: 'Records (JSON array)' }
+    ]
+  },
+  json_write: {
+    category: 'json',
+    params: [
+      { name: 'filepath', type: 'string', required: true },
+      { name: 'data', type: 'json', required: true, label: 'Data (JSON)' }
+    ]
+  },
+  json_read: {
+    category: 'json',
+    params: [
+      { name: 'filepath', type: 'string', required: true }
+    ]
+  },
+  json_update: {
+    category: 'json',
+    params: [
+      { name: 'filepath', type: 'string', required: true },
+      { name: 'updates', type: 'json', required: true, label: 'Updates (JSON)' }
+    ]
+  },
+  json_delete: {
+    category: 'json',
+    params: [
+      { name: 'filepath', type: 'string', required: true }
+    ]
+  },
+  json_list: {
+    category: 'json',
+    params: [
+      { name: 'directory', type: 'string', required: false, label: 'Directory (default ".")' }
+    ]
+  },
+  json_exists: {
+    category: 'json',
+    params: [
+      { name: 'filepath', type: 'string', required: true }
+    ]
+  },
+  data_operation: {
+    category: 'json',
+    params: [
+      { name: 'action', type: 'string', required: true, label: 'Action (read|write|update|delete)' },
+      { name: 'table', type: 'string', required: true },
+      { name: 'data', type: 'json', required: false, label: 'Data (JSON)' }
+    ]
+  }
+};
+
+let selectedTool = null;
+let lastResult = null;
+let showingJson = false;
+let sortCol = null;
+let sortAsc = true;
+
+// ---- INIT ----
+async function init() {
+  await checkServer();
+  loadToolList();
+}
+
+async function checkServer() {
+  const badge = document.getElementById('serverStatus');
+  const text = document.getElementById('statusText');
+  try {
+    const res = await fetch(`${API_BASE}/ping`);
+    const data = await res.json();
+    badge.className = 'status-badge online';
+    text.textContent = `Port 3101 · ${data.tools} tools`;
+  } catch (e) {
+    badge.className = 'status-badge offline';
+    text.textContent = 'Offline';
+  }
+}
+
+function loadToolList() {
+  const apiList = document.getElementById('apiToolList');
+  const jsonList = document.getElementById('jsonToolList');
+
+  for (const [name, schema] of Object.entries(TOOL_SCHEMAS)) {
+    const div = document.createElement('div');
+    div.className = 'tool-item';
+    div.dataset.category = schema.category;
+    div.dataset.tool = name;
+    div.innerHTML = `<span class="tool-dot"></span>${name}`;
+    div.onclick = () => selectTool(name);
+    
+    if (schema.category === 'api') apiList.appendChild(div);
+    else jsonList.appendChild(div);
+  }
+}
+
+function selectTool(name) {
+  // Update selection
+  document.querySelectorAll('.tool-item').forEach(el => el.classList.remove('selected'));
+  document.querySelector(`.tool-item[data-tool="${name}"]`).classList.add('selected');
+
+  selectedTool = name;
+  const schema = TOOL_SCHEMAS[name];
+
+  // Show params panel
+  document.getElementById('paramsPanel').style.display = '';
+  document.getElementById('toolTitle').textContent = name;
+
+  // Look up description from server or use fallback
+  const descriptions = {
+    get_token: 'Authenticate with CropManage API and obtain access token.',
+    get_ranches: 'Fetch all ranches. Requires token.',
+    get_plantings: 'Fetch plantings for a ranch. Requires token + ranch GUID.',
+    get_irrigation_details: 'Fetch irrigation events for a planting.',
+    load_into_displayRecords: 'Fetch and transform irrigation events to display format.',
+    post_new_irrigation: 'POST a new irrigation event to CropManage.',
+    update_irrigation: 'Update an existing irrigation event.',
+    batch_post_queue: 'Process pending records — POST new, UPDATE existing.',
+    json_write: 'Create or overwrite a JSON file in the data directory.',
+    json_read: 'Read a JSON file from the data directory.',
+    json_update: 'Shallow-merge updates into an existing JSON file.',
+    json_delete: 'Delete a JSON file from the data directory.',
+    json_list: 'List JSON files in a directory.',
+    json_exists: 'Check if a JSON file exists.',
+    data_operation: 'Generic table operation: read | write | update | delete.'
+  };
+  document.getElementById('toolDesc').textContent = descriptions[name] || '';
+
+  // Build form
+  const form = document.getElementById('paramsForm');
+  form.innerHTML = '';
+
+  if (schema.params.length === 0) {
+    form.innerHTML = '<span style="font-size:12px; color:var(--text-dim); font-style:italic;">No parameters required</span>';
+  } else {
+    schema.params.forEach(p => {
+      const group = document.createElement('div');
+      group.className = 'param-group';
+
+      const label = document.createElement('label');
+      label.innerHTML = (p.label || p.name) + (p.required ? '<span class="required">*</span>' : '');
+      group.appendChild(label);
+
+      if (p.type === 'json') {
+        const ta = document.createElement('textarea');
+        ta.id = `param_${p.name}`;
+        ta.placeholder = 'Enter JSON...';
+        group.appendChild(ta);
+      } else {
+        const inp = document.createElement('input');
+        inp.id = `param_${p.name}`;
+        inp.type = p.inputType || 'text';
+        inp.placeholder = p.label || p.name;
+        inp.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') runTool();
+        });
+        group.appendChild(inp);
+      }
+
+      form.appendChild(group);
+    });
+  }
+}
+
+async function runTool() {
+  if (!selectedTool) return;
+
+  const schema = TOOL_SCHEMAS[selectedTool];
+  const args = {};
+
+  // Gather params
+  for (const p of schema.params) {
+    const el = document.getElementById(`param_${p.name}`);
+    if (!el) continue;
+    let val = el.value.trim();
+    if (!val) continue;
+
+    if (p.type === 'json') {
+      try { val = JSON.parse(val); }
+      catch (e) {
+        alert(`Invalid JSON for ${p.name}: ${e.message}`);
+        return;
+      }
+    } else if (p.type === 'number') {
+      val = parseFloat(val);
+    }
+    args[p.name] = val;
+  }
+
+  // Run
+  const btn = document.getElementById('runBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  const startTime = performance.now();
+
+  try {
+    const res = await fetch(`${API_BASE}/tools/${selectedTool}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(args)
+    });
+
+    const elapsed = Math.round(performance.now() - startTime);
+    lastResult = await res.json();
+
+    showResults(lastResult, elapsed, res.status);
+  } catch (e) {
+    const elapsed = Math.round(performance.now() - startTime);
+    lastResult = { success: false, error: e.message };
+    showResults(lastResult, elapsed, 0);
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+function showResults(data, elapsed, status) {
+  document.getElementById('welcomeMsg').style.display = 'none';
+  document.getElementById('resultsContent').style.display = '';
+
+  // Meta
+  const meta = document.getElementById('resultsMeta');
+  const success = data.success !== false;
+  meta.innerHTML = `
+    <span class="tag ${success ? 'tag-success' : 'tag-error'}">${success ? '✓ Success' : '✗ Error'}</span>
+    <span>HTTP ${status}</span>
+    <span>${elapsed}ms</span>
+  `;
+
+  // Reset view toggle
+  showingJson = false;
+  document.getElementById('toggleView').classList.remove('active');
+
+  renderGrid(data);
+}
+
+function renderGrid(data) {
+  const container = document.getElementById('gridContainer');
+  container.innerHTML = '';
+  container.style.display = '';
+  document.getElementById('jsonContainer').style.display = 'none';
+
+  // Find the array or object to display
+  let gridData = null;
+  let dataKey = null;
+
+  // Check known array fields
+  const arrayKeys = ['ranches', 'plantings', 'events', 'displayRecords', 'results', 'files', 'tools', 'data'];
+  for (const key of arrayKeys) {
+    if (data[key] && Array.isArray(data[key]) && data[key].length > 0) {
+      gridData = data[key];
+      dataKey = key;
+      break;
+    }
+  }
+
+  // If data itself is an array
+  if (!gridData && Array.isArray(data) && data.length > 0) {
+    gridData = data;
+  }
+
+  // If data.data is an array
+  if (!gridData && data.data && Array.isArray(data.data) && data.data.length > 0) {
+    gridData = data.data;
+    dataKey = 'data';
+  }
+
+  // If we found tabular data, render grid
+  if (gridData && gridData.length > 0 && typeof gridData[0] === 'object') {
+    renderTable(container, gridData, dataKey);
+    return;
+  }
+
+  // Otherwise show as key-value pairs
+  renderKeyValue(container, data);
+}
+
+function renderTable(container, rows, dataKey) {
+  const cols = Object.keys(rows[0]);
+
+  // Record count
+  const countDiv = document.createElement('div');
+  countDiv.className = 'record-count';
+  countDiv.innerHTML = `<strong>${rows.length}</strong> records${dataKey ? ` in <strong>${dataKey}</strong>` : ''}`;
+  container.appendChild(countDiv);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'grid-wrap';
+
+  const table = document.createElement('table');
+
+  // Header
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  cols.forEach(col => {
+    const th = document.createElement('th');
+    th.innerHTML = `${col} <span class="sort-arrow">▲</span>`;
+    th.onclick = () => sortTable(rows, col, wrap, dataKey);
+    if (sortCol === col) th.classList.add('sorted');
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  // Body
+  const tbody = document.createElement('tbody');
+  rows.forEach(row => {
+    const tr = document.createElement('tr');
+    cols.forEach(col => {
+      const td = document.createElement('td');
+      let val = row[col];
+      if (val === null || val === undefined) val = '—';
+      else if (typeof val === 'object') val = JSON.stringify(val);
+      else val = String(val);
+      td.textContent = val;
+      td.title = val;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  container.appendChild(wrap);
+}
+
+function renderKeyValue(container, data) {
+  const wrap = document.createElement('div');
+  wrap.className = 'grid-wrap';
+  const table = document.createElement('table');
+  const tbody = document.createElement('tbody');
+
+  for (const [key, val] of Object.entries(data)) {
+    const tr = document.createElement('tr');
+    const tdKey = document.createElement('td');
+    tdKey.style.color = 'var(--info)';
+    tdKey.style.fontWeight = '600';
+    tdKey.textContent = key;
+
+    const tdVal = document.createElement('td');
+    if (typeof val === 'object' && val !== null) {
+      tdVal.textContent = JSON.stringify(val);
+    } else {
+      tdVal.textContent = val === null ? '—' : String(val);
+    }
+    tdVal.title = tdVal.textContent;
+
+    tr.appendChild(tdKey);
+    tr.appendChild(tdVal);
+    tbody.appendChild(tr);
+  }
+
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  container.appendChild(wrap);
+}
+
+function sortTable(rows, col, wrap, dataKey) {
+  if (sortCol === col) {
+    sortAsc = !sortAsc;
+  } else {
+    sortCol = col;
+    sortAsc = true;
+  }
+
+  rows.sort((a, b) => {
+    let va = a[col], vb = b[col];
+    if (va == null) va = '';
+    if (vb == null) vb = '';
+    if (typeof va === 'number' && typeof vb === 'number') {
+      return sortAsc ? va - vb : vb - va;
+    }
+    va = String(va).toLowerCase();
+    vb = String(vb).toLowerCase();
+    return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+
+  const container = document.getElementById('gridContainer');
+  container.innerHTML = '';
+  renderTable(container, rows, dataKey);
+}
+
+function toggleJsonView() {
+  showingJson = !showingJson;
+  const btn = document.getElementById('toggleView');
+  const grid = document.getElementById('gridContainer');
+  const json = document.getElementById('jsonContainer');
+
+  if (showingJson) {
+    btn.classList.add('active');
+    grid.style.display = 'none';
+    json.style.display = '';
+    json.innerHTML = syntaxHighlight(JSON.stringify(lastResult, null, 2));
+  } else {
+    btn.classList.remove('active');
+    grid.style.display = '';
+    json.style.display = 'none';
+  }
+}
+
+function syntaxHighlight(str) {
+  return str
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"(\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?/g, (match) => {
+      let cls = 'json-string';
+      if (match.endsWith(':')) {
+        cls = 'json-key';
+        return `<span class="${cls}">${match.slice(0, -1)}</span>:`;
+      }
+      return `<span class="${cls}">${match}</span>`;
+    })
+    .replace(/\b(-?\d+\.?\d*([eE][+-]?\d+)?)\b/g, '<span class="json-number">$1</span>')
+    .replace(/\b(true|false)\b/g, '<span class="json-bool">$1</span>')
+    .replace(/\bnull\b/g, '<span class="json-null">null</span>');
+}
+
+function clearResults() {
+  document.getElementById('resultsContent').style.display = 'none';
+  document.getElementById('welcomeMsg').style.display = '';
+  lastResult = null;
+}
+
+// Start
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+
+
+/mnt/user-data/outputs/CropClient-Archive/
+
+The Important Ones:
+
+CropClient_Library_Index.md
+CropClient_Vision_and_Architecture_Guide.md
+Napkin_02_Solution_Dreamer_15_Year_Arc.md
+The_Napkin_Conversation_LLM_Prompt_Designer.md
+CropClient-Website.html
+CropClient-Landing-Page.html
+
+Everything's already in outputs where you can download them to C:\AICode\crop-client-services

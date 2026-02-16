@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Client Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 { color: #333; margin-bottom: 20px; }
+        .controls { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-add { background: #667eea; color: white; }
+        .btn-reset { background: #48bb78; color: white; }
+        .btn-edit { background: #4299e1; color: white; padding: 5px 10px; font-size: 12px; }
+        .btn-delete { background: #f56565; color: white; padding: 5px 10px; font-size: 12px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        tbody tr:hover { background: #f5f5f5; }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+        .close:hover { color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .success { background: #c6f6d5; color: #2f855a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Crop Client Dashboard</h1>
+        <div id="message"></div>
+        <div class="controls">
+            <button class="btn-add" onclick="openAddModal()">Add New</button>
+            <button class="btn-reset" onclick="resetData()">Reset to Original Data</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ranch</th>
+                    <th>Planting</th>
+                    <th>Rec Amt</th>
+                    <th>Mgr Hrs</th>
+                    <th>Water Hrs</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="dataTable"></tbody>
+        </table>
+    </div>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Add New Record</h2>
+            <form id="dataForm" onsubmit="saveRecord(event)">
+                <input type="hidden" id="recordId">
+                <div class="form-group">
+                    <label>Ranch:</label>
+                    <input type="text" id="ranch" required>
+                </div>
+                <div class="form-group">
+                    <label>Planting:</label>
+                    <input type="text" id="planting" required>
+                </div>
+                <div class="form-group">
+                    <label>Rec Amt:</label>
+                    <input type="number" id="recAmt" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Mgr Hrs:</label>
+                    <input type="number" id="mgrHrs" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label>Water Hrs:</label>
+                    <input type="number" id="waterHrs" step="0.1" required>
+                </div>
+                <button type="submit" class="btn-add" style="width: 100%;">Save</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        const FILE_DATA = [
+            {"id": 1, "ranch": "Green Valley Ranch", "planting": "Tomatoes", "recAmt": 2500, "mgrHrs": 45.5, "waterHrs": 120.0},
+            {"id": 2, "ranch": "Green Valley Ranch", "planting": "Peppers", "recAmt": 1800, "mgrHrs": 32.0, "waterHrs": 85.5},
+            {"id": 3, "ranch": "Sunset Farms", "planting": "Lettuce", "recAmt": 3200, "mgrHrs": 58.0, "waterHrs": 145.0},
+            {"id": 4, "ranch": "Sunset Farms", "planting": "Carrots", "recAmt": 2100, "mgrHrs": 38.5, "waterHrs": 95.0},
+            {"id": 5, "ranch": "Green Valley Ranch", "planting": "Tomatoes", "recAmt": 1500, "mgrHrs": 28.0, "waterHrs": 72.5}
+        ];
+        function loadData() {
+            const stored = localStorage.getItem('cropData');
+            return stored ? JSON.parse(stored) : FILE_DATA;
+        }
+        function saveData(data) {
+            localStorage.setItem('cropData', JSON.stringify(data));
+        }
+        function renderTable() {
+            const data = loadData();
+            const tbody = document.getElementById('dataTable');
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.ranch}</td>
+                    <td>${item.planting}</td>
+                    <td>${item.recAmt}</td>
+                    <td>${item.mgrHrs}</td>
+                    <td>${item.waterHrs}</td>
+                    <td>
+                        <button class="btn-edit" onclick="editRecord(${item.id})">Edit</button>
+                        <button class="btn-delete" onclick="deleteRecord(${item.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = 'Add New Record';
+            document.getElementById('dataForm').reset();
+            document.getElementById('recordId').value = '';
+            document.getElementById('modal').style.display = 'block';
+        }
+        function editRecord(id) {
+            const data = loadData();
+            const record = data.find(r => r.id === id);
+            if (record) {
+                document.getElementById('modalTitle').textContent = 'Edit Record';
+                document.getElementById('recordId').value = record.id;
+                document.getElementById('ranch').value = record.ranch;
+                document.getElementById('planting').value = record.planting;
+                document.getElementById('recAmt').value = record.recAmt;
+                document.getElementById('mgrHrs').value = record.mgrHrs;
+                document.getElementById('waterHrs').value = record.waterHrs;
+                document.getElementById('modal').style.display = 'block';
+            }
+        }
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+        function saveRecord(event) {
+            event.preventDefault();
+            const data = loadData();
+            const id = document.getElementById('recordId').value;
+            const record = {
+                id: id ? parseInt(id) : Math.max(...data.map(r => r.id), 0) + 1,
+                ranch: document.getElementById('ranch').value,
+                planting: document.getElementById('planting').value,
+                recAmt: parseFloat(document.getElementById('recAmt').value),
+                mgrHrs: parseFloat(document.getElementById('mgrHrs').value),
+                waterHrs: parseFloat(document.getElementById('waterHrs').value)
+            };
+            if (id) {
+                const index = data.findIndex(r => r.id === parseInt(id));
+                data[index] = record;
+                showMessage('Record updated!', 'success');
+            } else {
+                data.push(record);
+                showMessage('Record added!', 'success');
+            }
+            saveData(data);
+            renderTable();
+            closeModal();
+        }
+        function deleteRecord(id) {
+            if (confirm('Delete this record?')) {
+                const data = loadData();
+                const filtered = data.filter(r => r.id !== id);
+                saveData(filtered);
+                renderTable();
+                showMessage('Record deleted!', 'success');
+            }
+        }
+        function resetData() {
+            if (confirm('Reset all data to original?')) {
+                saveData(FILE_DATA);
+                renderTable();
+                showMessage('Data reset!', 'success');
+            }
+        }
+        function showMessage(text, type) {
+            const div = document.getElementById('message');
+            div.innerHTML = `<div class="message ${type}">${text}</div>`;
+            setTimeout(() => div.innerHTML = '', 3000);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('cropData')) saveData(FILE_DATA);
+            renderTable();
+        });
+        window.onclick = (e) => {
+            if (e.target == document.getElementById('modal')) closeModal();
+        }
+    </script>
+</body>
+</html>

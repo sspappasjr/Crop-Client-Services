@@ -1,0 +1,37 @@
+{
+  "tasks": [
+    {
+      "id": "calc-water",
+      "name": "Calculate Water from Duration",
+      "type": "Calculation",
+      "description": "Calculates water applied from irrigation duration and flow rate",
+      "prompt": "Calculate water from {duration} hours at {flow_rate}",
+      "status": "active"
+    },
+    {
+      "id": "add-next",
+      "name": "Add Next Irrigation Record",
+      "type": "Data Entry",
+      "description": "Creates next irrigation record with calculated date",
+      "prompt": "Add next irrigation for {ranch} {planting} on {next_date}",
+      "status": "active"
+    },
+    {
+      "id": "what-my-recommendation-for-ranch-planting",
+      "name": "Recommendation for {Ranch}, {Planting}",
+      "type": "Data Entry",
+      "description": "What's my water recommendation for current Ranch and planting",
+      "prompt": "What's my Recommendation for Ranch {Ranch}, Planting {Planting}",
+      "status": "active"
+    },
+    {
+      "id": "tank-water-meter-for-ranch-and",
+      "name": "Tank Water Meter for Ranch, Planting and Date",
+      "type": "Data Entry",
+      "description": "Take Water Meter Readings for Ranch, Planting and Date\nEnter current Water Applied from Water Meter and Press Save.",
+      "prompt": "Show My water meter for Ranch {Ranch} Planting {Planting} Date {Date}",
+      "status": "active"
+    }
+  ],
+  "nextId": 5
+}

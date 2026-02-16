@@ -1,0 +1,43 @@
+{
+  "header": {
+    "version": "v1.0",
+    "appName": "CropClient Services",
+    "environment": "demo",
+    "showVersion": true,
+    "showUser": true
+  },
+  "user": {
+    "logonUser": "",
+    "userRole": "Admin",
+    "rememberLogin": true,
+    "sessionTimeout": 30,
+    "autoLogout": false
+  },
+  "features": {
+    "enableMCP": true,
+    "enablePrompts": true,
+    "enableReports": true,
+    "debugMode": false,
+    "offlineMode": false
+  },
+  "display": {
+    "theme": "green",
+    "gridRowsPerPage": 10,
+    "dateFormat": "MM/DD/YYYY",
+    "showTooltips": true,
+    "animationsEnabled": true
+  },
+  "server": {
+    "apiUrl": "http://localhost:3000",
+    "mcpEndpoint": "/api",
+    "dataFolder": "./data",
+    "refreshInterval": 5000
+  },
+  "options": {
+    "option1": "value1",
+    "option2": "value2",
+    "option3": "value3",
+    "customField1": "",
+    "customField2": ""
+  }
+}
