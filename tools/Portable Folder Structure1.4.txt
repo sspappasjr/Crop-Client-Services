@@ -1,0 +1,42 @@
+CROPCLIENT — PORTABLE FOLDER STRUCTURE
+=======================================
+Updated: February 16, 2026
+Verified against actual disk contents
+
+crop-client-services/
+├── .gitignore
+├── package.json                (root npm config)
+├── package-lock.json           (dependency lock)
+├── QUICK_START.txt             (server start/stop/restart guide)
+│
+├── api-server/
+│   ├── APIServer1.2.js         (THE server — port 3101, 15 tools)
+│   ├── api-component.js        (CropManage API source component)
+│   ├── package.json            (api-server npm config)
+│   ├── package-lock.json       (dependency lock)
+│   └── data/
+│       ├── aicode-links.json
+│       ├── controlpanel.json
+│       ├── CropClient_DemoData.json
+│       ├── irrigation.json
+│       ├── irrigation-records.json
+│       ├── prompt.json
+│       ├── prompts.json
+│       ├── stevep.json
+│       ├── tasks.json
+│       ├── test.json
+│       └── test2.json
+│
+├── Pages/
+│   ├── CropClient-MCP-API-Tools-Audit-Q-v1.4.html  (current audit app — online default)
+│   ├── CropClient-MCP-API-Tools-Audit-Q-v1.3.html  (previous — local default)
+│   ├── CropClient-MCP-API-Tools-Audit-Q v1.0.html  (version backup)
+│   └── CropClient-MCP-API-Tools-Audit-Q.html        (version backup)
+│
+├── tools/
+│   ├── SERVER-INSTALL-GUIDE.txt     (full server install guide)
+│   ├── Portable Folder Structure1.3.txt  (this file)
+│   ├── api-tester.html              (2x2 API tester app — feature reference)
+│   └── test-apiserver (5).html      (legacy API tester)
+│
+└── node_modules/                    (auto-generated — NOT in git)

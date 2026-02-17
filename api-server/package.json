@@ -2,9 +2,9 @@
   "name": "cropclient-api-mcp-server",
   "version": "1.0.0",
   "description": "CropClient API MCP Server - CropManage Integration (Port 3101)",
-  "main": "server.js",
+  "main": "APIServer1.2.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node APIServer1.2.js",
     "test": "node test-client.js"
   },
   "keywords": [
@@ -12,7 +12,7 @@
     "cropmanage",
     "api"
   ],
-  "author": "Steve Copenhaver",
+  "author": "Steve Pappas",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.6",
