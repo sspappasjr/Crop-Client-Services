@@ -1,10 +1,10 @@
 {
   "name": "cropclient-api-mcp-server",
-  "version": "1.0.0",
-  "description": "CropClient API MCP Server - CropManage Integration (Port 3101)",
-  "main": "APIServer1.2.js",
+  "version": "1.3.0",
+  "description": "CropClient API MCP Server - CropManage Integration (iisnode + standalone)",
+  "main": "APIServer1.3.js",
   "scripts": {
-    "start": "node APIServer1.2.js",
+    "start": "node APIServer1.3.js",
     "test": "node test-client.js"
   },
   "keywords": [
