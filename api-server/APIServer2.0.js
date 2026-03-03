@@ -1,8 +1,14 @@
 /**
- * API MCP Server - CropManage Integration (Port 3101)
+ * API MCP Server - CropManage Integration v2.0
+ * iisnode-ready: uses process.env.PORT, gates stdio MCP when under IIS
  * Combines MCP stdio protocol + HTTP bridge in one process
- * Port: 3101 (HTTP), stdio (MCP)
- * Tools: 8 API integration tools (authentication, fetch, POST, UPDATE, batch)
+ * Port: process.env.PORT (iisnode) or 3101 (standalone)
+ * Tools: 15 (8 API + 7 JSON file services)
+ *
+ * Changes from v1.6 → v2.0:
+ *   - get_irrigation_details now auto-chains to loadIntoDisplayRecords
+ *   - Single call returns enriched displayRecords (no separate load step)
+ *   - All other tools unchanged
  */
 
 const readline = require('readline');
@@ -36,7 +42,7 @@ class MCPServer {
                             protocolVersion: '2024-11-05',
                             serverInfo: {
                                 name: 'cropclient-api-mcp-server',
-                                version: '1.0.0'
+                                version: '2.0.0'
                             },
                             capabilities: {
                                 tools: {}
@@ -59,13 +65,13 @@ class MCPServer {
                 case 'tools/call':
                     const toolName = params.name;
                     const tool = this.tools.get(toolName);
-                    
+
                     if (!tool) {
                         throw new Error(`Tool not found: ${toolName}`);
                     }
 
                     const result = await tool.handler(params.arguments || {});
-                    
+
                     return {
                         jsonrpc: '2.0',
                         id,
@@ -114,7 +120,7 @@ class MCPServer {
             }
         });
 
-        process.stderr.write('API MCP Server started - 7 tools ready\n');
+        process.stderr.write('API MCP Server started - stdio mode\n');
     }
 }
 
@@ -166,11 +172,11 @@ function makeRequest(options, postData = null) {
     return new Promise((resolve, reject) => {
         const req = https.request(options, (res) => {
             let data = '';
-            
+
             res.on('data', (chunk) => {
                 data += chunk;
             });
-            
+
             res.on('end', () => {
                 try {
                     const parsed = JSON.parse(data);
@@ -186,15 +192,15 @@ function makeRequest(options, postData = null) {
                 }
             });
         });
-        
+
         req.on('error', (error) => {
             reject(error);
         });
-        
+
         if (postData) {
             req.write(postData);
         }
-        
+
         req.end();
     });
 }
@@ -202,7 +208,7 @@ function makeRequest(options, postData = null) {
 // Get CropManage Authentication Token
 async function getToken(username, password) {
     const postData = `grant_type=password&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-    
+
     const options = {
         hostname: API_BASE_URL,
         path: '/Token',
@@ -212,10 +218,10 @@ async function getToken(username, password) {
             'Content-Length': Buffer.byteLength(postData)
         }
     };
-    
+
     try {
         const response = await makeRequest(options, postData);
-        
+
         if (response.statusCode === 200) {
             apiToken = response.data.access_token;
             return {
@@ -245,7 +251,7 @@ async function getRanches() {
             message: 'No token available. Call get_token first.'
         };
     }
-    
+
     const options = {
         hostname: API_BASE_URL,
         path: `/${API_VERSION}/ranches.json`,
@@ -254,10 +260,10 @@ async function getRanches() {
             'Authorization': `Bearer ${apiToken}`
         }
     };
-    
+
     try {
         const response = await makeRequest(options);
-        
+
         if (response.statusCode === 200) {
             ranchData = response.data;
             return {
@@ -287,14 +293,14 @@ async function getPlantingsByRanch(ranchGuid) {
             message: 'No token available. Call get_token first.'
         };
     }
-    
+
     if (!ranchGuid) {
         return {
             success: false,
             message: 'Ranch GUID required'
         };
     }
-    
+
     const options = {
         hostname: API_BASE_URL,
         path: `/${API_VERSION}/ranches/${ranchGuid}/plantings.json`,
@@ -303,10 +309,10 @@ async function getPlantingsByRanch(ranchGuid) {
             'Authorization': `Bearer ${apiToken}`
         }
     };
-    
+
     try {
         const response = await makeRequest(options);
-        
+
         if (response.statusCode === 200) {
             plantingsData = response.data;
             return {
@@ -336,14 +342,14 @@ async function getIrrigationDetails(plantingId) {
             message: 'No token available. Call get_token first.'
         };
     }
-    
+
     if (!plantingId) {
         return {
             success: false,
             message: 'Planting ID required'
         };
     }
-    
+
     const options = {
         hostname: API_BASE_URL,
         path: `/${API_VERSION}/plantings/${plantingId}/irrigation-events/details.json`,
@@ -352,10 +358,10 @@ async function getIrrigationDetails(plantingId) {
             'Authorization': `Bearer ${apiToken}`
         }
     };
-    
+
     try {
         const response = await makeRequest(options);
-        
+
         if (response.statusCode === 200) {
             const events = response.data;
             return {
@@ -396,21 +402,21 @@ function transformToDisplayRecords(events) {
             const year = String(dateObj.getFullYear()).slice(-2);
             scheduledDate = `${month}/${day}/${year}`;
         }
-        
+
         // Calculate hours from inches
         const recInch = parseFloat(event.RecommendedIrrigationAmount) || 0;
         const hours = event.RecommendedIrrigationTime || (recInch > 0 ? parseFloat((recInch / 0.3).toFixed(1)) : 0);
-        
+
         const appliedInch = parseFloat(event.WaterApplied) || 0;
         const appliedHours = appliedInch > 0 ? parseFloat((appliedInch / 0.3).toFixed(1)) : 0;
-        
+
         const intervalDays = event.RecommendedInterval ? parseFloat(event.RecommendedInterval).toFixed(1) : '0';
         const interval = intervalDays + ' days';
-        
+
         let irrigationMethod = 'Sprinkler';
         if (event.IrrigationMethodId === 2) irrigationMethod = 'Drip';
         else if (event.IrrigationMethodId === 3) irrigationMethod = 'Micro-Sprinkler';
-        
+
         return {
             id: index + 1,
             eventId: event.Id,
@@ -435,36 +441,68 @@ function transformToDisplayRecords(events) {
     });
 }
 
-// Load Events into DisplayRecords
+// Fetch full recommendation for a single event by ID
+async function fetchEventRecommendation(eventId) {
+    const options = {
+        hostname: API_BASE_URL,
+        path: `/${API_VERSION}/irrigation-events/${eventId}.json`,
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${apiToken}` }
+    };
+    try {
+        const response = await makeRequest(options);
+        if (response.statusCode === 200) return response.data;
+    } catch (error) {
+        console.error(`Error fetching event ${eventId}:`, error.message);
+    }
+    return null;
+}
+
+// Load Events into DisplayRecords (with full recommendations)
 async function loadIntoDisplayRecords(args) {
     const plantingId = args.plantingId || selectedPlantingId;
-    
+
     if (!plantingId) {
         return {
             success: false,
             message: 'Planting ID required'
         };
     }
-    
-    // Fetch irrigation details
+
+    // Fetch base irrigation details
     const result = await getIrrigationDetails(plantingId);
-    
+
     if (!result.success) {
         return result;
     }
-    
-    // Transform to display format
-    const displayRecords = transformToDisplayRecords(result.events);
-    
+
+    // Enrich each event with full recommendation data
+    const enrichedEvents = [];
+    for (const event of result.events) {
+        const fullEvent = await fetchEventRecommendation(event.Id);
+        if (fullEvent) {
+            fullEvent.RanchName = event.RanchName || selectedRanchName;
+            fullEvent.PlantingName = event.PlantingName || selectedPlantingName;
+            fullEvent.RanchId = event.RanchId;
+            fullEvent.PlantingId = event.PlantingId;
+            enrichedEvents.push(fullEvent);
+        } else {
+            enrichedEvents.push(event);
+        }
+    }
+
+    // Transform enriched events to display format
+    const displayRecords = transformToDisplayRecords(enrichedEvents);
+
     // Store for reset functionality
     apiDetailData = displayRecords;
     dataSource = 'api';
-    
+
     return {
         success: true,
         displayRecords: displayRecords,
         count: displayRecords.length,
-        message: `Loaded ${displayRecords.length} irrigation records`
+        message: `Loaded ${displayRecords.length} irrigation records (with recommendations)`
     };
 }
 
@@ -476,7 +514,7 @@ async function postNewIrrigation(args) {
             message: 'No token available. Call get_token first.'
         };
     }
-    
+
     const postData = JSON.stringify({
         PlantingId: args.plantingId,
         EventDate: args.scheduledDate,
@@ -484,7 +522,7 @@ async function postNewIrrigation(args) {
         WaterApplied: args.appliedHours * 0.3,
         IrrigationMethodId: args.irrigationMethod === 'Drip' ? 2 : 1
     });
-    
+
     const options = {
         hostname: API_BASE_URL,
         path: `/${API_VERSION_V3}/irrigation-events.json`,
@@ -495,10 +533,10 @@ async function postNewIrrigation(args) {
             'Content-Length': Buffer.byteLength(postData)
         }
     };
-    
+
     try {
         const response = await makeRequest(options, postData);
-        
+
         if (response.statusCode === 200 || response.statusCode === 201) {
             return {
                 success: true,
@@ -527,12 +565,12 @@ async function updateIrrigationEvent(eventId, args) {
             message: 'No token available. Call get_token first.'
         };
     }
-    
+
     const postData = JSON.stringify({
         WaterApplied: args.appliedHours ? args.appliedHours * 0.3 : undefined,
         ManagerAmountRecommendationHours: args.mgrHours
     });
-    
+
     const options = {
         hostname: API_BASE_URL,
         path: `/${API_VERSION_V3}/irrigation-events/${eventId}.json`,
@@ -543,10 +581,10 @@ async function updateIrrigationEvent(eventId, args) {
             'Content-Length': Buffer.byteLength(postData)
         }
     };
-    
+
     try {
         const response = await makeRequest(options, postData);
-        
+
         if (response.statusCode === 200) {
             return {
                 success: true,
@@ -569,7 +607,7 @@ async function updateIrrigationEvent(eventId, args) {
 // Batch Process Queue (POST new, UPDATE existing)
 async function batchPostQueue(records) {
     const results = [];
-    
+
     for (const record of records) {
         if (record.eventId) {
             // Has eventId - UPDATE existing
@@ -581,10 +619,10 @@ async function batchPostQueue(records) {
             results.push({ record, result, action: 'POST' });
         }
     }
-    
+
     const successCount = results.filter(r => r.result.success).length;
     const failCount = results.length - successCount;
-    
+
     return {
         success: failCount === 0,
         results: results,
@@ -643,13 +681,17 @@ const apiServiceTools = [
         handler: async (args) => {
             if (args.ranchGuid) {
                 selectedRanchGuid = args.ranchGuid;
+                if (ranchData) {
+                    const ranch = ranchData.find(r => r.Ranch_External_GUID === args.ranchGuid);
+                    if (ranch) selectedRanchName = ranch.Name;
+                }
             }
             return await getPlantingsByRanch(selectedRanchGuid);
         }
     },
     {
         name: "get_irrigation_details",
-        description: "Fetch irrigation event details for a specific planting. Includes all recommendations.",
+        description: "Fetch irrigation event details and automatically load into displayRecords format. Returns enriched irrigation records ready for dashboard display.",
         inputSchema: {
             type: "object",
             properties: {
@@ -663,8 +705,13 @@ const apiServiceTools = [
         handler: async (args) => {
             if (args.plantingId) {
                 selectedPlantingId = args.plantingId;
+                if (plantingsData) {
+                    const planting = plantingsData.find(p => String(p.Id) === String(args.plantingId));
+                    if (planting) selectedPlantingName = planting.Name;
+                }
             }
-            return await getIrrigationDetails(selectedPlantingId);
+            // v2.0: auto-chain to loadIntoDisplayRecords
+            return await loadIntoDisplayRecords({ plantingId: selectedPlantingId });
         }
     },
     {
@@ -896,7 +943,7 @@ jsonFileTools.forEach(tool => {
 // ========================================
 
 const app = express();
-const PORT = 3101;
+const PORT = process.env.PORT || 3101;
 
 app.use(cors());
 app.use(express.json());
@@ -1134,9 +1181,10 @@ async function handleDataOperation(action, table, data) {
 
 // Health check
 app.get('/ping', (req, res) => {
-    res.json({ 
+    res.json({
         status: 'alive',
-        server: 'CropClient API MCP',
+        server: 'CropClient API MCP v2.0',
+        mode: process.env.IISNODE_VERSION ? 'iisnode' : 'standalone',
         timestamp: new Date().toISOString(),
         tools: apiServiceTools.length + jsonFileTools.length
     });
@@ -1155,20 +1203,20 @@ app.get('/tools', (req, res) => {
 app.post('/tools/:toolName', async (req, res) => {
     const { toolName } = req.params;
     const args = req.body;
-    
+
     try {
         const tool = [...apiServiceTools, ...jsonFileTools].find(t => t.name === toolName);
-        
+
         if (!tool) {
             return res.status(404).json({
                 success: false,
                 error: `Tool not found: ${toolName}`
             });
         }
-        
+
         const result = await tool.handler(args);
         res.json(result);
-        
+
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -1179,16 +1227,17 @@ app.post('/tools/:toolName', async (req, res) => {
 
 // Start HTTP server
 app.listen(PORT, () => {
-    console.log(`✅ API MCP Server running on http://localhost:${PORT}`);
-    console.log(`📋 Tools available: ${apiServiceTools.length + jsonFileTools.length}`);
-    apiServiceTools.forEach(t => {
-        console.log(`   - ${t.name}`);
-    });
+    console.log(`API MCP Server v2.0 running on port ${PORT}`);
+    console.log(`Mode: ${process.env.IISNODE_VERSION ? 'iisnode' : 'standalone'}`);
+    console.log(`Tools available: ${apiServiceTools.length + jsonFileTools.length}`);
 });
 
 // ========================================
 // @@@@ API_COMPONENT INJECTION POINT @@@@
 // ========================================
 
-// Start stdio server
-server.start();
+// Start stdio MCP server ONLY when running standalone (not under iisnode)
+// iisnode captures stdout for HTTP responses — stdio MCP would conflict
+if (!process.env.IISNODE_VERSION) {
+    server.start();
+}
